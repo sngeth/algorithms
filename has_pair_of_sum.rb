@@ -1,20 +1,19 @@
-require 'minitest/autorun'
+require "minitest/autorun"
+require "set"
 
 class HasPairOfSum
-  def self.check?(data, sum)
-    hasPairOfSum = false
-    compliments = {}
+  def self.check?(arr, val)
+    found_values = Set.new
 
-    data.each do |num|
-      if compliments[num]
-        hasPairOfSum = true
-        break
-      else
-        compliments[num] = sum - num
+    arr.each do |num|
+      if found_values.include?(val - num)
+        return true
       end
+
+      found_values.add(num)
     end
 
-    hasPairOfSum
+    false
   end
 end
 
