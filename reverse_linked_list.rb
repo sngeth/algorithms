@@ -9,7 +9,7 @@ class LinkedList
     @head = head
   end
 
-  def reverse_iterative
+  def reverse_iterative(head)
     if !head || !head.next
       return head
     end
@@ -34,21 +34,40 @@ class LinkedList
 
     @head = reversed_head
   end
+
+  def reverse_recursive(head)
+    return head if !head || !head.next
+
+    reversed_head = reverse_recursive(head.next)
+
+    head.next.next = head
+    head.next = nil
+    @head = reversed_head
+  end
 end
 
 describe LinkedList do
-  describe "#reverse_iter" do
-    before do
-      d = Node.new(28, nil)
-      c = Node.new(21, d)
-      b = Node.new(14, c)
-      head = Node.new(7, b)
+  before do
+    d = Node.new(28, nil)
+    c = Node.new(21, d)
+    b = Node.new(14, c)
+    @head = Node.new(7, b)
+    @linked_list = LinkedList.new(@head)
+  end
 
-      @linked_list = LinkedList.new(head)
-    end
-
+  describe "#reverse_iterative" do
     it "iteratively returns reference to head of reversed list" do
-      @linked_list.reverse_iterative
+      @linked_list.reverse_iterative(@head)
+      @linked_list.head.data.must_equal 28
+      @linked_list.head.next.data.must_equal 21
+      @linked_list.head.next.next.data.must_equal 14
+      @linked_list.head.next.next.next.data.must_equal 7
+    end
+  end
+
+  describe "#reverse_recursive" do
+    it "recursively returns reference to head of reversed list" do
+      @linked_list.reverse_recursive(@head)
       @linked_list.head.data.must_equal 28
       @linked_list.head.next.data.must_equal 21
       @linked_list.head.next.next.data.must_equal 14
