@@ -1,91 +1,164 @@
-class Node
-  attr_accessor :data, :next_node
+require "minitest/autorun"
+require "set"
+require "byebug"
 
-  def initialize(data, next_node = nil)
-    @data = data
-    @next_node = next_node
-  end
-end
+Node = Struct.new(:data, :next)
 
 class LinkedList
   attr_accessor :head
 
-  def add_first(item)
-    @head = Node.new(item, head)
+  def initialize(head)
+    @head = head
   end
 
-  def traverse
-    temp_node = head
-    arr = []
+  def to_s
+    curr = head
+    ll = []
 
-    while temp_node != nil do
-      arr << temp_node.data
-      temp_node = temp_node.next_node
+    while curr
+      ll << curr.data
+      curr = curr.next
     end
 
-    arr
+    ll.to_s
   end
 
-  def add_last(item)
-    if(head == nil)
-      add_first(item)
-    else
-      temp_node = head
+  def delete(head, key)
+    prev = nil
+    curr = head
 
-      while(temp_node.next_node != nil) do
-        temp_node = temp_node.next_node
+    while curr
+      break if curr.data == key
+
+      prev = curr
+      curr = curr.next
+    end
+
+    # reached end of list without finding
+    return head if !curr
+
+    # node to be deleted is head node
+    return head.next if curr == head
+
+    # connect previous node to what deleted node pointed to
+    prev.next = curr.next
+
+    head
+  end
+
+  def reverse_iterative(head)
+    if !head || !head.next
+      return head
+    end
+
+    list_to_do = head.next
+
+    # create a new reversed list
+    # point it initially to beginning of old list
+    reversed_head = head
+    reversed_head.next = nil
+
+    # At each iteration, the list_to_do pointer moves forward
+    # The current node becomes the head of the new reversed linked list and
+    # starts pointing to the previous head of the reversed linked list.
+    while list_to_do
+      temp = list_to_do
+      list_to_do = list_to_do.next
+
+      temp.next = reversed_head
+      reversed_head = temp
+    end
+
+    @head = reversed_head
+  end
+
+  def reverse_recursive(head)
+    return head if !head || !head.next
+
+    reversed_head = reverse_recursive(head.next)
+
+    head.next.next = head
+    head.next = nil
+    @head = reversed_head
+  end
+
+  def remove_dups
+    return head if !head
+
+    dups = Set.new
+    dups.add(head.data)
+    curr = head
+
+    while curr.next
+      if dups.include?(curr.next.data)
+        curr.next = curr.next.next
+      else
+        dups.add(curr.next.data)
+        curr = curr.next
       end
+    end
 
-      temp_node.next_node = Node.new(item, nil)
+    head
+  end
+end
+
+describe LinkedList do
+  before do
+    d = Node.new(28, nil)
+    c = Node.new(21, d)
+    b = Node.new(14, c)
+    @head = Node.new(7, b)
+    @linked_list = LinkedList.new(@head)
+  end
+
+  describe "#reverse_iterative" do
+    it "iteratively returns reference to head of reversed list" do
+      @linked_list.reverse_iterative(@head)
+      @linked_list.head.data.must_equal 28
+      @linked_list.head.next.data.must_equal 21
+      @linked_list.head.next.next.data.must_equal 14
+      @linked_list.head.next.next.next.data.must_equal 7
     end
   end
 
-  def insert_after(key, value)
-    temp_node = head
-
-    while(temp_node != nil && !(temp_node.data == key)) do
-      temp_node = temp_node.next
+  describe "#reverse_recursive" do
+    it "recursively returns reference to head of reversed list" do
+      @linked_list.reverse_recursive(@head)
+      @linked_list.head.data.must_equal 28
+      @linked_list.head.next.data.must_equal 21
+      @linked_list.head.next.next.data.must_equal 14
+      @linked_list.head.next.next.next.data.must_equal 7
     end
-
-    temp_node.next_node = Node.new(value, temp_node.next_node) if temp_node != nil
   end
 
-  def insert_before(key, node_to_insert)
-    return nil if head == nil
+  describe "#remove_dups" do
+    it "head reference to list with no duplicates" do
+      g = Node.new(4, nil)
+      f = Node.new(11, g)
+      e = Node.new(7, f)
+      d = Node.new(9, e)
+      c = Node.new(4, d)
+      b = Node.new(7, c)
+      head = Node.new(4, b)
 
-    if(head.data == key)
-      return add_first(node_to_insert)
+      linked_list = LinkedList.new(head)
+      linked_list.remove_dups
+      linked_list.to_s.must_equal "[4, 7, 9, 11]"
     end
-
-    prev = nil
-    cur = head
-
-    while(cur != nil && !(cur.data == key)) do
-      prev = cur
-      cur = cur.next_node
-    end
-
-    prev.next_node = Node.new(node_to_insert, cur) if cur != nil
   end
 
-  def remove(key)
-    raise "Cannot delete" if @head == nil
+  describe "#delete" do
+    it "deletes node with given key" do
+      f = Node.new(41, nil)
+      e = Node.new(72, f)
+      d = Node.new(11, e)
+      c = Node.new(36, d)
+      b = Node.new(14, c)
+      head = Node.new(20, b)
 
-    if(@head.data == key)
-      @head = head.next_node
-      return
+      linked_list = LinkedList.new(head)
+      linked_list.delete(head, 72)
+      linked_list.to_s.must_equal "[20, 14, 36, 11, 41]"
     end
-
-    cur = head
-    prev = nil
-
-    while(cur != nil && !(cur.data == key)) do
-      prev = cur
-      cur = cur.next_node
-    end
-
-    raise "Cannot delete" if(cur == nil)
-
-    prev.next_node = cur.next_node
   end
 end
