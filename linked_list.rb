@@ -23,6 +23,36 @@ class LinkedList
     ll.to_s
   end
 
+  def sorted_insert(head, node)
+    if !head || node.data <= head.data
+      node.next = head
+      return node
+    end
+
+    curr = head
+    while curr.next && curr.next.data < node.data
+      curr = curr.next
+    end
+
+    node.next = curr.next
+    curr.next = node
+
+    head
+  end
+
+  def insertion_sort(head)
+    sorted = nil
+    curr = head
+
+    while curr
+      temp = curr.next
+      sorted = sorted_insert(sorted, curr)
+      curr = temp
+    end
+
+    @head = sorted
+  end
+
   def delete(head, key)
     prev = nil
     curr = head
@@ -159,6 +189,19 @@ describe LinkedList do
       linked_list = LinkedList.new(head)
       linked_list.delete(head, 72)
       linked_list.to_s.must_equal "[20, 14, 36, 11, 41]"
+    end
+  end
+
+  describe "#insertion_sort" do
+    it "sorts list" do
+      d = Node.new(11, nil)
+      c = Node.new(82, d)
+      b = Node.new(23, c)
+      head = Node.new(29, b)
+
+      linked_list = LinkedList.new(head)
+      linked_list.insertion_sort(head)
+      linked_list.to_s.must_equal "[11, 23, 29, 82]"
     end
   end
 end
