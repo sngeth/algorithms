@@ -11,6 +11,15 @@ class LinkedList
     @head = head
   end
 
+  def add(data)
+    current = @head
+
+    while !current.next.nil?
+      current = current.next
+    end
+    current.next = Node.new(data, nil)
+  end
+
   def to_s
     curr = head
     ll = []
@@ -130,6 +139,51 @@ class LinkedList
 
     head
   end
+
+  def self.intersect(head1, head2)
+    list1node = list2node = nil
+    list1length = get_length(head1)
+    list2length = get_length(head2)
+
+    length_difference = 0
+    if list1length >= list2length
+      length_difference = list1length - list2length
+      list1node = head1
+      list2node = head2
+    else
+      length_difference = list2length - list1length
+      list1node = head2
+      list2node = head1
+    end
+
+    # move shorter list to same position as longer list
+    while length_difference > 0
+      list1node = list1node.next
+      length_difference -= 1
+    end
+
+    while list1node
+      if list1node == list2node
+        return list1node
+      end
+
+      list1node = list1node.next
+      list2node = list2node.next
+    end
+
+    nil
+  end
+
+  def self.get_length(head)
+    length = 0
+
+    while head
+      head = head.next
+      length += 1
+    end
+
+    length
+  end
 end
 
 describe LinkedList do
@@ -202,6 +256,25 @@ describe LinkedList do
       linked_list = LinkedList.new(head)
       linked_list.insertion_sort(head)
       linked_list.to_s.must_equal "[11, 23, 29, 82]"
+    end
+  end
+
+  describe "#intersect" do
+    it "returns point of intersection" do
+      list1 = LinkedList.new(Node.new(29, nil))
+      list1.add(23)
+      list1.add(82)
+      list1.add(11)
+      list1.add(12)
+      list1.add(27)
+
+      list2 = LinkedList.new(Node.new(13, nil))
+      list2.add(4)
+      list2.add(12)
+      list2.add(27)
+
+      intersection = LinkedList.intersect(list1.head, list2.head)
+      intersection.data.must_equal 12
     end
   end
 end
