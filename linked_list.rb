@@ -184,6 +184,27 @@ class LinkedList
 
     length
   end
+
+  def nth_from_last(head, n)
+    if !head || n < 1
+      return nil
+    end
+
+    tail = head
+    while tail && n > 0
+      tail = tail.next
+      n -= 1
+    end
+
+    return nil if n != 0
+
+    while tail
+      tail = tail.next
+      head = head.next
+    end
+
+    @head = head
+  end
 end
 
 describe LinkedList do
@@ -275,6 +296,21 @@ describe LinkedList do
 
       intersection = LinkedList.intersect(list1.head, list2.head)
       intersection.data.must_equal 12
+    end
+  end
+
+  describe "#nth_from_last_node" do
+    it "returns ref to nth from last node" do
+      list = LinkedList.new(Node.new(7, nil))
+      list.add(14)
+      list.add(21)
+      list.add(28)
+      list.add(35)
+      list.add(42)
+
+      third_from_last = list.nth_from_last(list.head, 3)
+      third_from_last.data.must_equal 28
+      LinkedList.new(third_from_last).to_s.must_equal "[28, 35, 42]"
     end
   end
 end
