@@ -234,6 +234,52 @@ class LinkedList
 
     @head = curr
   end
+
+  def self.merge_sorted(head1, head2)
+    # empty lists check
+    return head2 if !head1
+    return head1 if !head2
+
+    merged_head = nil
+
+    # add first smallest item from each list and move to next item
+    if head1.data <= head2.data
+      merged_head = head1
+      head1 = head1.next
+    else
+      merged_head = head2
+      head2 = head2.next
+    end
+
+    # tail starts as head on first iteration
+    merged_tail = merged_head
+
+    # walk through each list and compare
+    while (head1 && head2)
+      temp = nil
+      # first list's item is smaller so save it to add to merged_tail list
+      if head1.data <= head2.data
+        temp = head1
+        head1 = head1.next
+      # second list's item is smaller
+      else
+        temp = head2
+        head2 = head2.next
+      end
+
+      merged_tail.next = temp
+      merged_tail = temp
+    end
+
+    # append rest of list if 1 is completely consumed
+    if head1
+      merged_tail.next = head1
+    elsif head2
+      merged_tail.next = head2
+    end
+
+    @head = merged_head
+  end
 end
 
 describe LinkedList do
@@ -356,6 +402,23 @@ describe LinkedList do
       new_head.data.must_equal 28
 
       LinkedList.new(new_head).to_s.must_equal "[28, 14, 21, 7, 35, 42]"
+    end
+  end
+
+  describe "#merge_sorted" do
+    it "takes two sorted linked lists and merges them into a single list" do
+      list = LinkedList.new(Node.new(4, nil))
+      list.add 8
+      list.add 15
+      list.add 19
+
+      list2 = LinkedList.new(Node.new(7, nil))
+      list2.add 9
+      list2.add 10
+      list2.add 16
+
+      merged_list_head = LinkedList.merge_sorted(list.head, list2.head)
+      LinkedList.new(merged_list_head).to_s.must_equal "[4, 7, 8, 9, 10, 15, 16, 19]"
     end
   end
 end
