@@ -205,6 +205,35 @@ class LinkedList
 
     @head = head
   end
+
+  def swap_head(head, n)
+    # find the nth and nth-1 node
+    curr = head
+    prev = nil
+
+    return head if !head || n == 1
+
+    count = 1
+    # curr will become the nth node
+    while(curr && count < n)
+      prev = curr
+      curr = curr.next
+      count += 1
+    end
+
+    return head if !curr
+
+    # point n-1 node to original head
+    prev.next = head
+    # save original head's pointer so the new current we can point to it later
+    temp = head.next
+    # point original head's next to nth node's next
+    head.next = curr.next
+    # point new head's next to old head's next
+    curr.next = temp
+
+    @head = curr
+  end
 end
 
 describe LinkedList do
@@ -311,6 +340,22 @@ describe LinkedList do
       third_from_last = list.nth_from_last(list.head, 3)
       third_from_last.data.must_equal 28
       LinkedList.new(third_from_last).to_s.must_equal "[28, 35, 42]"
+    end
+  end
+
+  describe "#swap_head" do
+    it "swaps the nth node with head and returns head of new linked list" do
+      list = LinkedList.new(Node.new(7, nil))
+      list.add(14)
+      list.add(21)
+      list.add(28)
+      list.add(35)
+      list.add(42)
+
+      new_head = list.swap_head(list.head, 4)
+      new_head.data.must_equal 28
+
+      LinkedList.new(new_head).to_s.must_equal "[28, 14, 21, 7, 35, 42]"
     end
   end
 end
