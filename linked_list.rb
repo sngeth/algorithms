@@ -235,7 +235,7 @@ class LinkedList
     @head = curr
   end
 
-  def self.merge_sorted(head1, head2)
+  def merge_sorted(head1, head2)
     # empty lists check
     return head2 if !head1
     return head1 if !head2
@@ -279,6 +279,55 @@ class LinkedList
     end
 
     @head = merged_head
+  end
+
+  def merge_alternating(list1, list2)
+    return list if (!list1)
+    return list1 if (!list2)
+
+    head = list1
+
+    while (list1.next && list2)
+      temp = list2
+      list2 = list2.next
+
+      temp.next = list1.next
+      list1.next = temp
+      list1 = temp.next
+    end
+
+    list1.next = list2 if !list1.next
+
+    head
+  end
+
+  def reverse_even_nodes
+    # Let's extract even nodes from the existing
+    # list and create a new list consisting of
+    # even nodes. We will push the even nodes at
+    # head since we want them to be in reverse order.
+
+    curr = @head
+    list_even = nil
+
+    while curr && curr.next
+      even = curr.next
+      curr.next = even.next
+
+      # Push at the head of new list.
+      even.next = list_even
+      list_even = even
+
+      curr = curr.next
+    end
+
+    # Now, merge the two lists
+    # Original: 1,2,3,4,5
+    # Modified original: 1,3,5
+    # List_even: 4,2
+    # Merged: 1,4,3,2,5
+
+    return merge_alternating(@head, list_even)
   end
 end
 
@@ -417,8 +466,22 @@ describe LinkedList do
       list2.add 10
       list2.add 16
 
-      merged_list_head = LinkedList.merge_sorted(list.head, list2.head)
+      merged_list_head = list.merge_sorted(list.head, list2.head)
       LinkedList.new(merged_list_head).to_s.must_equal "[4, 7, 8, 9, 10, 15, 16, 19]"
+    end
+  end
+
+  describe "#reverse_even_nodes" do
+    it "given a singly linked list reverses nodes at even indices" do
+      list = LinkedList.new(Node.new(7, nil))
+      list.add 14
+      list.add 21
+      list.add 28
+      list.add 9
+
+      reversed_list_head = list.reverse_even_nodes
+      LinkedList.new(reversed_list_head).to_s.must_equal "[7, 28, 21, 14, 9]"
+
     end
   end
 end
