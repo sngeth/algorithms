@@ -31,7 +31,6 @@ class FindHighLowIndex
     mid = low + ((high - low ) / 2).floor
 
     while low <= high
-      byebug
       mid_elem = arr[mid]
 
       if mid_elem <= key
